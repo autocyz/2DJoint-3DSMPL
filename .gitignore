@@ -1,0 +1,9 @@
+*.pkl
+*.obj
+__pycache__/
+script.py
+data/
+model/
+train_logs/
+trained_model/
+.idea/
