@@ -7,3 +7,4 @@ model/
 train_logs/
 trained_model/
 .idea/
+*.obj

@@ -4,6 +4,8 @@ import torch.nn as nn
 from logger import Logger
 import torchvision.transforms as transforms
 import os
+from model import MyModel
+
 
 
 class MyDataset(torch.utils.data.Dataset):
@@ -32,7 +34,7 @@ class MyDataset(torch.utils.data.Dataset):
         joint = np.load(self.joint_list[index])
         joint = joint[:, 0:2]
         pose = pose.reshape(-1)
-        pose += 0.5
+        # pose += 0.5
         if self.transform is not None:
             joint = self.transform(joint)
         if self.transform_target is not None:
@@ -41,23 +43,6 @@ class MyDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self.pose_list)
-
-
-class MyModel(nn.Module):
-    def __init__(self):
-        super(MyModel, self).__init__()
-        self.net = nn.Sequential(
-            nn.Linear(24*2, 24*3),
-            nn.ReLU(inplace=True),
-            nn.Linear(24*3, 24*3),
-            nn.ReLU(inplace=True)
-        )
-
-    def forward(self, x):
-        x = x.reshape(x.shape[0], -1)
-        x = self.net(x)
-        return x
-
 
 def adjust_learning_rate(optimizer, epoch, decay_rate, decay_step):
     """Sets the learning rate to the initial LR decayed by decay_rate every decay_step epochs"""
@@ -70,8 +55,8 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 input_size = 24*2
 output_size = 24*3
-num_epochs = 100
-batch_size = 1000
+num_epochs = 100000
+batch_size = 400
 learning_rate = 0.1
 
 logger = Logger('./train_logs/2018_08_06')
@@ -88,7 +73,8 @@ test_loader = torch.utils.data.DataLoader(dataset=test_set,
 model = MyModel().to(device)
 model.double()
 
-criterion = nn.MSELoss()
+# criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 # Train the model
@@ -96,7 +82,8 @@ total_step = len(train_loader)
 print(total_step)
 last_loss = float('inf')
 for epoch in range(num_epochs):
-    adjust_learning_rate(optimizer, epoch, 0.5, 5)
+    model.train()
+    adjust_learning_rate(optimizer, epoch, 0.5, 100)
     for i, (joint, pose) in enumerate(train_loader):
         joint = joint.to(device)
         pose = pose.to(device)
@@ -104,7 +91,7 @@ for epoch in range(num_epochs):
         # Forward pass
         output = model(joint)
         loss = criterion(output, pose)
-        loss *= 100
+        # loss *= 100
         # Backward and optimize
         optimizer.zero_grad()
         loss.backward()

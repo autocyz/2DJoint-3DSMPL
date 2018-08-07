@@ -2,4 +2,4 @@
 > SMPL official model:
 > http://smpl.is.tue.mpg.de/
 
-> SMPL project used in thsi project: https://github.com/CalciferZh/SMPL 
+> SMPL project used in this project: https://github.com/CalciferZh/SMPL 
