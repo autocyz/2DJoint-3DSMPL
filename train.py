@@ -7,7 +7,6 @@ import os
 from model import MyModel
 
 
-
 class MyDataset(torch.utils.data.Dataset):
     def __init__(self, pose_path, joint_path, transform=None, transform_target=None):
         self.pose_path = pose_path
@@ -44,6 +43,7 @@ class MyDataset(torch.utils.data.Dataset):
     def __len__(self):
         return len(self.pose_list)
 
+
 def adjust_learning_rate(optimizer, epoch, decay_rate, decay_step):
     """Sets the learning rate to the initial LR decayed by decay_rate every decay_step epochs"""
     for param_group in optimizer.param_groups:
@@ -55,14 +55,13 @@ device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
 input_size = 24*2
 output_size = 24*3
-num_epochs = 100000
-batch_size = 400
-learning_rate = 0.1
+num_epochs = 200
+batch_size = 64
+learning_rate = 1e-3
 
-logger = Logger('./train_logs/2018_08_06')
+logger = Logger('./train_logs/2018_08_07')
 train_set = MyDataset('data/train/pose', 'data/train/joint')
 test_set = MyDataset('data/test/pose', 'data/test/joint')
-
 train_loader = torch.utils.data.DataLoader(dataset=train_set,
                                            batch_size=batch_size,
                                            shuffle=True)
@@ -74,8 +73,8 @@ model = MyModel().to(device)
 model.double()
 
 # criterion = nn.MSELoss()
-criterion = nn.L1Loss()
-optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
+criterion = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the model
 total_step = len(train_loader)
@@ -83,7 +82,6 @@ print(total_step)
 last_loss = float('inf')
 for epoch in range(num_epochs):
     model.train()
-    adjust_learning_rate(optimizer, epoch, 0.5, 100)
     for i, (joint, pose) in enumerate(train_loader):
         joint = joint.to(device)
         pose = pose.to(device)
@@ -96,7 +94,7 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        if (i+1) % 1 == 0:
+        if (i+1) % 10 == 0:
             print('Epoch [{}/{}], Step [{}/{}], lr: {} Loss: {:.4f}'
                   .format(epoch+1, num_epochs, i+1, total_step, float(optimizer.param_groups[0]['lr']), loss.item()))
 

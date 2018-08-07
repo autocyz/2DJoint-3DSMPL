@@ -1,19 +1,45 @@
-import numpy as np
-import torch
 import torch.nn as nn
-import os
 
 
 class MyModel(nn.Module):
     def __init__(self):
         super(MyModel, self).__init__()
-        self.net = nn.Sequential(
-            nn.Linear(24*2, 24*3),
+        self.inputLinear = nn.Sequential(
+            nn.Linear(24*2, 1024),
+            nn.BatchNorm1d(1024),
             nn.ReLU(inplace=True),
-            nn.Linear(24*3, 24*3)
+            nn.Dropout(p=0.5)
         )
+        self.block = nn.Sequential(
+            nn.Linear(1024, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5),
+
+            nn.Linear(1024, 1024),
+            nn.BatchNorm1d(1024),
+            nn.ReLU(inplace=True),
+            nn.Dropout(p=0.5)
+        )
+        self.outputLinear = nn.Sequential(nn.Linear(1024, 24*3)
+        )
+
+        self.init_layer(self.inputLinear)
+        self.init_layer(self.block)
+        self.init_layer(self.outputLinear)
+
+    def init_layer(self, net):
+        for layer in net:
+            if isinstance(layer, nn.Linear):
+                nn.init.kaiming_normal_(layer.weight, mode='fan_out', nonlinearity='relu')
+            elif isinstance(layer, nn.BatchNorm1d):
+                nn.init.constant_(layer.weight, 1)
+                nn.init.constant_(layer.bias, 0)
 
     def forward(self, x):
         x = x.reshape(x.shape[0], -1)
-        x = self.net(x)
-        return x
+        x = self.inputLinear(x)
+        x1 = self.block(x)
+        x1 += x
+        out = self.outputLinear(x1)
+        return out
