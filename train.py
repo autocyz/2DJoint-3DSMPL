@@ -56,12 +56,12 @@ print(device)
 input_size = 24*2
 output_size = 24*3
 num_epochs = 200
-batch_size = 64
+batch_size = 128
 learning_rate = 1e-3
 
-logger = Logger('./train_logs/2018_08_07')
-train_set = MyDataset('data/train/pose', 'data/train/joint')
-test_set = MyDataset('data/test/pose', 'data/test/joint')
+logger = Logger('./train_logs/2018_08_09')
+train_set = MyDataset('/mnt/data/dataset/SMPL/train/pose', '/mnt/data/dataset/SMPL/train/joint')
+test_set = MyDataset('/mnt/data/dataset/SMPL/test/pose', '/mnt/data/dataset/SMPL/test/joint')
 train_loader = torch.utils.data.DataLoader(dataset=train_set,
                                            batch_size=batch_size,
                                            shuffle=True)
@@ -82,6 +82,7 @@ print(total_step)
 last_loss = float('inf')
 for epoch in range(num_epochs):
     model.train()
+    adjust_learning_rate(optimizer=optimizer, epoch=epoch, decay_rate=0.1, decay_step=90)
     for i, (joint, pose) in enumerate(train_loader):
         joint = joint.to(device)
         pose = pose.to(device)
@@ -130,5 +131,5 @@ for epoch in range(num_epochs):
     if loss < last_loss:
         last_loss = loss
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'trained_model/2018_08_06/epoch_%d_model.ckpt' % epoch)
+        torch.save(model.state_dict(), 'trained_model/2018_08_08/epoch_%d_model.ckpt' % epoch)
 

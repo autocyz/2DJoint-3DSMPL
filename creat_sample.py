@@ -6,12 +6,12 @@ from SMPL.smpl_np import SMPLModel
 
 if __name__ == '__main__':
     smpl = SMPLModel('model/feman_lbs.pkl')
-    pose_path = 'data/test/pose/'
-    joint_path = 'data/test/joint/'
-    np.random.seed(2463)
-    sample_num = 10000
+    pose_path = '/mnt/data/dataset/SMPL/train/pose/'
+    joint_path = '/mnt/data/dataset/SMPL/train/joint/'
+    np.random.seed(7777)
+    sample_num = 200000
     for i in range(sample_num):
-        name = 'pose_%05d' % i
+        name = 'pose_%07d' % i
         pose = (np.random.rand(*smpl.pose_shape) - 0.5)
         np.save(os.path.join(pose_path, name), pose)
         # with open(os.path.join(pose_path, name), 'w') as fp:
@@ -20,7 +20,7 @@ if __name__ == '__main__':
         #             fp.write('%f\n' % ele)
         # fp.close()
 
-        name = 'joint_%05d' % i
+        name = 'joint_%07d' % i
         smpl.set_params(pose=pose)
         joints = smpl.get_changed_joints()
         np.save(os.path.join(joint_path, name), joints)

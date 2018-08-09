@@ -133,10 +133,10 @@ if __name__ == '__main__':
     np.random.seed(9608)
     # pose = (np.random.rand(*smpl.pose_shape) - 0.5) * 0.4
     # beta = (np.random.rand(*smpl.beta_shape) - 0.5) * 0.06
-    pose = np.zeros(smpl.pose_shape)
-    pose[4,2] = 0
+    # pose = np.zeros(smpl.pose_shape)
+    # pose[4,2] = 0
     trans = np.zeros(smpl.trans_shape)
-    smpl.set_params(pose=pose, trans=trans)
+    smpl.set_params()
     smpl.save_to_obj('./smpl_np.obj')
     smpl.save_joints_to_obj('./joints.obj')
 

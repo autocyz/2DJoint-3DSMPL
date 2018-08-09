@@ -9,15 +9,15 @@ smpl = SMPLModel('model/feman_lbs.pkl')
 model = MyModel()
 model.double()
 model.eval()
-model.load_state_dict(torch.load('trained_model/2018_08_06/epoch_57_model.ckpt'))
+model.load_state_dict(torch.load('trained_model/2018_08_08/epoch_115_model.ckpt'))
 
-joint_t = np.load('data/test/joint/joint_00026.npy')
-pose_t = np.load('data/test/pose/pose_00026.npy')
+
+joint_t = np.load('data/test/joint/joint_00058.npy')
+pose_t = np.load('data/test/pose/pose_00058.npy')
 joint_t = torch.from_numpy(joint_t[:, 0:2])
 joint_t = joint_t.reshape(1, -1)
 pose_p = model(joint_t).data.numpy()
 pose_p = pose_p.reshape(24, 3)
-
 
 
 smpl.set_params(pose=pose_t)
