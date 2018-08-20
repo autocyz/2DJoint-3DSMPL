@@ -107,7 +107,6 @@ class SMPLModel():
     def with_zeros(self, x):
         return np.vstack((x, np.array([[0.0, 0.0, 0.0, 1.0]])))
 
-
     def pack(self, x):
         return np.dstack((np.zeros((x.shape[0], 4, 3)), x))
 
@@ -127,6 +126,29 @@ class SMPLModel():
             for j in joints:
                 fp.write('v %f %f %f\n' % (j[0], j[1], j[2]))
 
+    def save_14_joints_to_obj(self, path):
+        joints = self.get_changed_joints()
+        joints_14 = np.array((joints[15], (joints[16]+joints[17])/2, joints[17], joints[19], joints[21], joints[16],
+                     joints[18], joints[20], joints[2], joints[5], joints[8], joints[1], joints[4],
+                     joints[7]))
+        with open(path, 'w') as fp:
+            for j in joints_14:
+                fp.write('v %f %f %f\n' % (j[0], j[1], j[2]))
+
+        # zero_point = (joints_14[8]+joints_14[11])/2
+        #
+        # joint_max = joints_14.max(0)
+        # joint_min = joints_14.min(0)
+        # joint_border = joint_max-joint_min
+        #
+        # print('max: ', joints_14.max(0))
+        # print('min: ', joints_14.min(0))
+        # joints_14 = (joints_14-zero_point)/joint_border[1]
+        #
+        # with open('./joint14_normed.obj', 'w') as fp:
+        #     for j in joints_14:
+        #         fp.write('v %f %f %f\n' % (j[0], j[1], j[2]))
+
 
 if __name__ == '__main__':
     smpl = SMPLModel('model/feman_lbs.pkl')
@@ -139,5 +161,5 @@ if __name__ == '__main__':
     smpl.set_params()
     smpl.save_to_obj('./smpl_np.obj')
     smpl.save_joints_to_obj('./joints.obj')
-
+    smpl.save_14_joints_to_obj('./joints14.obj')
 

@@ -2,10 +2,10 @@ import torch.nn as nn
 
 
 class MyModel(nn.Module):
-    def __init__(self):
+    def __init__(self, input_size, output_size):
         super(MyModel, self).__init__()
         self.inputLinear = nn.Sequential(
-            nn.Linear(24*2, 1024),
+            nn.Linear(input_size, 1024),
             nn.BatchNorm1d(1024),
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5)
@@ -21,9 +21,8 @@ class MyModel(nn.Module):
             nn.ReLU(inplace=True),
             nn.Dropout(p=0.5)
         )
-        self.outputLinear = nn.Sequential(nn.Linear(1024, 24*3)
+        self.outputLinear = nn.Sequential(nn.Linear(1024, output_size)
         )
-
         self.init_layer(self.inputLinear)
         self.init_layer(self.block)
         self.init_layer(self.outputLinear)

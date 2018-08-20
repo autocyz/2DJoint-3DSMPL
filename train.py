@@ -53,13 +53,13 @@ def adjust_learning_rate(optimizer, epoch, decay_rate, decay_step):
 
 device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 print(device)
-input_size = 24*2
+input_size = 14*2
 output_size = 24*3
 num_epochs = 200
 batch_size = 128
 learning_rate = 1e-3
 
-logger = Logger('./train_logs/2018_08_09')
+logger = Logger('./train_logs/2018_08_20')
 train_set = MyDataset('/mnt/data/dataset/SMPL/train/pose', '/mnt/data/dataset/SMPL/train/joint')
 test_set = MyDataset('/mnt/data/dataset/SMPL/test/pose', '/mnt/data/dataset/SMPL/test/joint')
 train_loader = torch.utils.data.DataLoader(dataset=train_set,
@@ -69,11 +69,11 @@ test_loader = torch.utils.data.DataLoader(dataset=test_set,
                                           batch_size=batch_size,
                                           shuffle=True)
 
-model = MyModel().to(device)
+model = MyModel(input_size, output_size).to(device)
 model.double()
 
 # criterion = nn.MSELoss()
-criterion = nn.MSELoss()
+criterion = nn.L1Loss()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 # Train the model
@@ -84,9 +84,9 @@ for epoch in range(num_epochs):
     model.train()
     adjust_learning_rate(optimizer=optimizer, epoch=epoch, decay_rate=0.1, decay_step=90)
     for i, (joint, pose) in enumerate(train_loader):
+
         joint = joint.to(device)
         pose = pose.to(device)
-
         # Forward pass
         output = model(joint)
         loss = criterion(output, pose)
@@ -131,5 +131,5 @@ for epoch in range(num_epochs):
     if loss < last_loss:
         last_loss = loss
         # Save the model checkpoint
-        torch.save(model.state_dict(), 'trained_model/2018_08_08/epoch_%d_model.ckpt' % epoch)
+        torch.save(model.state_dict(), 'trained_model/2018_08_20/epoch_%d_model.ckpt' % epoch)
 

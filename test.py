@@ -4,16 +4,17 @@ import torch.nn as nn
 
 from SMPL.smpl_np import SMPLModel
 from model import MyModel
-
+input_size = 14*2
+output_size = 24*3
 smpl = SMPLModel('model/feman_lbs.pkl')
-model = MyModel()
+model = MyModel(input_size,output_size )
 model.double()
 model.eval()
-model.load_state_dict(torch.load('trained_model/2018_08_08/epoch_115_model.ckpt'))
+model.load_state_dict(torch.load('trained_model/2018_08_20/epoch_46_model.ckpt'))
 
 
-joint_t = np.load('data/test/joint/joint_00058.npy')
-pose_t = np.load('data/test/pose/pose_00058.npy')
+joint_t = np.load('/mnt/data/dataset/SMPL/test/joint/joint_0000057.npy')
+pose_t = np.load('/mnt/data/dataset/SMPL/test/pose/pose_0000057.npy')
 joint_t = torch.from_numpy(joint_t[:, 0:2])
 joint_t = joint_t.reshape(1, -1)
 pose_p = model(joint_t).data.numpy()
